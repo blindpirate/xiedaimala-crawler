@@ -13,7 +13,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class Crawler implements Runnable {
 
@@ -45,7 +48,7 @@ public class Crawler implements Runnable {
                     } catch (Exception ignored) {
 
                     }
-                    databaseAccessor.updateDatabase(link, "INSERT INTO LINKS_ALREADY_PROCESSED (link) values (?)");
+                    databaseAccessor.insertProcessedLink(link);
                 }
             }
         } catch (Exception e) {
@@ -62,7 +65,7 @@ public class Crawler implements Runnable {
             if (href.startsWith("//")) {
                 href = "https:" + href;
             }
-            databaseAccessor.updateDatabase(href, "INSERT INTO LINKS_TO_BE_PROCESSED (link) values (?)");
+            databaseAccessor.insertLinkToBeProcessed(href);
         }
     }
 
@@ -87,15 +90,46 @@ public class Crawler implements Runnable {
 
     // 我们只关心news。sina的，我们要排除登陆页面
     private static boolean isInterestingLink(String link) {
-        return (isNewsPage(link) || isIndexPage(link)) && isNotLoginPage(link);
+        return (isSinaCn(link, "news.sina.cn",
+                "mil.sina.cn",
+                "finance.sina.cn",
+                "sports.sina.cn",
+                "ent.sina.cn",
+                "tech.sina.cn",
+                "games.sina.cn",
+                "edu.sina.cn",
+                "eladies.sina.cn",
+                "gd.sina.cn",
+                "sc.sina.cn",
+                "henan.sina.cn",
+                "fj.sina.cn",
+                "jx.sina.cn",
+                "hunan.sina.cn",
+                "hb.sina.cn",
+                "sh.sina.cn",
+                "hlj.sina.cn",
+                "jiangsu.sina.cn",
+                "gx.sina.cn",
+                "hainan.sina.cn",
+                "shanxi.sina.cn",
+                "jl.sina.cn",
+                "zj.sina.cn",
+                "sd.sina.cn",
+                "yn.sina.cn"
+        ) || isIndexPage(link)) && isNotLoginPage(link);
     }
 
     private static boolean isIndexPage(String link) {
         return "https://sina.cn".equals(link);
     }
 
-    private static boolean isNewsPage(String link) {
-        return link.contains("news.sina.cn");
+    private static boolean isSinaCn(String link, String... hosts) {
+        try {
+            String host = new URL(link).getHost();
+            return Arrays.asList(hosts).contains(host);
+        } catch (MalformedURLException e) {
+            return false;
+        }
     }
 
     private static boolean isNotLoginPage(String link) {
