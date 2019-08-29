@@ -36,12 +36,15 @@ public class Crawler implements Runnable {
                 if (isInterestingLink(link)) {
                     System.out.println(String.format("Thread name: %s, processing link: %s", Thread.currentThread().getName(), link));
 
-                    Document doc = httpGetAndParseHtml(link);
+                    try {
+                        Document doc = httpGetAndParseHtml(link);
 
-                    parseUrlsFromPageAndStoreIntoDatabase(doc);
+                        parseUrlsFromPageAndStoreIntoDatabase(doc);
 
-                    databaseAccessor.storeIntoDatabaseIfItIsNewsPage(link, doc);
+                        databaseAccessor.storeIntoDatabaseIfItIsNewsPage(link, doc);
+                    } catch (Exception ignored) {
 
+                    }
                     databaseAccessor.updateDatabase(link, "INSERT INTO LINKS_ALREADY_PROCESSED (link) values (?)");
                 }
             }
