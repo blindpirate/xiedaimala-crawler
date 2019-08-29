@@ -20,7 +20,7 @@ public class DatabaseAccessor {
 
     public DatabaseAccessor() {
         try {
-            connection = DriverManager.getConnection("jdbc:h2:file:/Users/zhb/Projects/xiedaimala-crawler/news", USER_NAME, PASSWORD);
+            connection = DriverManager.getConnection("jdbc:h2:file:" + System.getProperty("user.dir") + "/news", USER_NAME, PASSWORD);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
